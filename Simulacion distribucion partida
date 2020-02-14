@@ -1,0 +1,15 @@
+nsim<- 1000 #numero de simulaciones
+set.seed(1)
+X<- vector()
+U <- runif(nsim)
+for(i in 1:nsim)
+{
+if(U[i] <= .5){
+  X[i]<- sqrt(2*U[i])
+}else{
+  X[i]<- 2*U[i]
+}
+}
+  
+X
+hist(X, freq = FALSE, xlim = c(0,3), ylim = c(0,2.5))
