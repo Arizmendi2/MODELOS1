@@ -1,0 +1,21 @@
+#VARIABLES DISCRETAS
+#UTILIZAR RUNIF Y EL MeTODO DE IVERSION PARA 1000 SIMULACIONES ver el ejercicio 
+rfmp0<-function(x,prob, nsim=1000){
+ X<-numeric(nsim) 
+ U<-runif(nsim)
+ for(j in 1:nsim){
+   i<-1
+   Fx<- prob[i]
+   while (Fx < U[j]) {
+     i<- i+1
+     Fx<- Fx + prob[i]
+   }
+   X[j]<- x[i]
+ }
+return(X)
+}
+
+x<- c(1, 2, 3, 4)
+prob<-c(0.20,0.15,0.25,0.4)
+X<-rfmp0(x,prob)
+hist(X, freq = F, xlim = c(0,4))
