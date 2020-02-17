@@ -13,3 +13,15 @@ if(U[i] <= .5){
   
 X
 hist(X, freq = FALSE, xlim = c(0,3), ylim = c(0,2.5))
+
+#definir la funcion de densidad de x
+densidad<-function(x)
+{x*(0<=x&x<=1)+1/2*(1<x&x<=2)}
+curve(densidad(x),add=T, col= "blue")
+#para definir la distribucion acumulada
+pdensidad<-function(x)
+{0*(x>0)+x^2/2*(0<=x&x<=1)+x/2*(1<x&x<=2)+1*(x>2)}
+curve(pdensidad(x),add=T, col= "red")
+#para la distribucion acumulada empirica
+plot(ecdf(X), add=T,col="green")
+#LA RECTA QUE SALE, SE PONE ENCIMA DE LA ACUMULADA TEORICA, POR LO CUAL VEMOS QUE LA SIMULACION ES BUENA
