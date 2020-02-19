@@ -1,0 +1,47 @@
+####GEOMETRICA
+nsim<- 1000 #numero de simulaciones
+set.seed(1)
+lambda<- log(1-.7)
+X<- vector()
+U <- runif(nsim)
+for(i in 1:nsim)
+{
+  X<- log(U[i])/lambda
+}
+
+X
+hist(X, freq = FALSE, xlim = c(0,3), ylim = c(0,2.5))
+
+#DISTRIBUCIÓN DE BERNULLI POR TRASFORMADA INVERSA
+nsim<- 1000 #numero de simulaciones
+set.seed(1)
+X<- vector()
+U <- runif(nsim)
+for(i in 1:nsim)
+{
+  if(U[i] <= .7){
+    X[i]<- 0
+  }else{
+    X[i]<- 1
+  }
+}
+
+X
+hist(X, freq = FALSE, xlim = c(0,3), ylim = c(0,2.5))
+
+##### UNIFORME DISCRETA
+nsim<- 1000 #numero de simulaciones
+set.seed(1)
+X<- vector()
+U <- runifD(nsim)
+for(i in 1:nsim)
+{
+  if(U[i] >= 1 && U[i] <=20 ){
+    X[i]<- 1/20
+  }else{
+    X[i]<- 0
+  }
+}
+
+X
+hist(X, freq = FALSE, xlim = c(0,3), ylim = c(0,2.5))
