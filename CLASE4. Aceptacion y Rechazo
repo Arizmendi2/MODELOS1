@@ -1,0 +1,60 @@
+#aceptacion y rechazo
+#ejercicio de la beta de x y y de la uniforme
+nsim<-1000
+  mbeta<-vector()
+  for(i in 1:nsim)
+    {
+    y<-runif(1)
+    pseud2<-runif(1)
+    if (pseud2<= y^2) mbeta[i]<-y
+    else mbeta[i]=0
+  }
+  mbetadef<-mbeta[mbeta!=0]
+  tasacepbeta<-length(mbetadef)/length(mbeta)
+  print('tasacebeta')
+  print(tasacepbeta)
+  print('numero medio de iteraciones')
+  print(1/tasacepbeta)
+  
+  hist(mbetadef, freq = FALSE, main= "Histograma")
+  curve(dbeta(x,3,1), add=T, col="blue")
+  
+  
+###el mismo ejecicio pero con constaantes 
+  nsim<-1000
+  mbeta<-vector()
+  for(i in 1:nsim)
+  {
+    y<-runif(1) #g(y)instrumental
+    pseud2<-runif(1)
+    if (pseud2<= (70/17)*(y^1.7)*((1-y)^5.3)) mbeta[i]<-y #para guardar el valor  si se cumple la 
+    condicion
+    else mbeta[i]=0
+  }
+  mbetadef<-mbeta[mbeta!=0]
+  tasacepbeta<-length(mbetadef)/length(mbeta)
+  print('tasacebeta')
+  print(tasacepbeta)
+  print('numero medio de iteraciones')
+  print(1/tasacepbeta)
+  
+  hist(mbetadef, freq = FALSE, main= "Histograma")
+  curve(dbeta(x,2.7,6.3), add=T, col="blue")
+
+#el mismo metodo para variables discretas
+  nsim<-1000
+  x<- vector()
+  c<- 0.4/0.25
+  
+  for(i in 1:nsim){
+    y<-floor(4*runif(1))+1
+    p_j<-c(0.2, 0.15, 0.25,0.4)
+    q_j<-.25
+    if(runif(1) < p_j[y] / (c*q_j)){
+      x[i]<-y
+    }
+  else x[i]<- 0
+    }
+ 
+  b<-x[x!=0]
+  hist(b, freq = FALSE, main= "Histograma Discreta")
