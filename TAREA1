@@ -1,0 +1,107 @@
+##########EJERCICIO 1######
+set.seed(1)
+x=vector() # para los primeros n numeros de la distribucion
+
+for (i in 1:1001) {
+  x[i]=i-1 
+}
+#Se hace de 1 a 1001 y se le resnta 1 por la forma que se encuentra escrita en el trabajo, por los supuestos que se utilizaron
+prob_Poisson=vector() # Para gurdar las primeras probabilidades
+lambda<- 2
+for (i in 1:1001) {
+  prob_Poisson[i]=(exp(-lambda)*lambda^(i-1))/(factorial(i-1))
+}
+#De esta manera se inserta la función de probilidad una vez aplicada la transformada inversa de la distribucion.
+#para el Xj-esimo numero entero (x=0,1,2,3...) de la distribución es necesario
+# que el numero aleatorio "u" generado a partir de la distribución U(0,1)
+# se encuentre entre los intervalos (p0+p1+...+pj-1) <= u < (p0+p1+...+pj)
+#donde pi representa la Probabilidad de que la v.va X que queremos carcular tome 
+#el valor de xj, es decir P(X=xj)=pj, j=0,1,2...
+Poisson<- function(x,prob,nsim=1000){
+  X = numeric(nsim)
+U=runif(1000)
+for (j in 1:nsim) {i=1
+Fy=prob_Poisson[i]
+while(U[j]>Fy){ # se hace la regla para las discretas vistas en clase
+  i=i+1
+  Fy=Fy+prob_Poisson[i]
+}
+X[j]=x[i]
+}
+return(X)}
+X=Poiss(x,prob_Poisson) #variable para guardar los numeros generados por Poisson
+hist(X,freq=F,xlim = c(0,10))
+densidadPoisson=function(x){(exp(-2)*(2)^(x))/(factorial(x))}
+curve(densidadPoisson(x),add = T,col= "blue",lwd=3)
+# Por la imagen obtenida vemos que la simulacion así como el ajuste es bueno,
+# apesar que tenemos una gran incidencia en la aparicion del valor cero, es por eso que
+#esa parte de la curva no se ajusta tambien a la densidad original dada, igual podríamos
+#intentar con otros métodos que caigan tan rápido al cero y no tener tanta incidencia en el número.
+
+
+#########EJERCICIO 2#################
+#Se realiza la simulacion a través del método de la transformada inversa.
+runifD <- function(n = 1000, k) floor(k*runif(n)) + 1
+hist(runifD(n = 1000, k = 10))
+# o también se puede hacer como:
+hist(sample(5:15, size = 1000, replace= TRUE))
+##Por la forma obtenida del hustograma, se puede notar que da el aspecto de la uniforme
+# esto apesar que se tiene gran presencia del valores de 0 por lo que la barra se aprecia mas grande,
+#aunado a eso podemos ver que la simulacion fue buena ya que se aprecia constante en las demas barras.
+
+
+########EJERCICO 3############
+#El ejercico se hará a través del método de la transforma inversa
+nsim<- 1000 
+set.seed(1)
+X<- vector()
+U <- runif(nsim)
+for(i in 1:nsim)
+{
+  if(U[i] <= .5){
+    X[i]<- sqrt(U[i]/2) # Una vez realizada la transformacion se llega a los resultados  y ahora los condicionamos de acuerdo a los valores que vamos a obtener
+  }else{
+     X[i]<- (1-sqrt((1- U[i])/2))
+  }
+}
+X
+hist(X, freq = FALSE, xlim = c(0,1), ylim = c(0,3))
+# c)definir la funcion de densidad teorica de x
+densidad1<-function(x)
+{4*x}
+curve(densidad1(x),add=T, col= "blue", xlim=c(0,0.5))
+densidad2<-function(x)
+{4*(1-x)}
+curve(densidad2(x),add=T, col= "blue", xlim=c(0.5,1))
+#en el caso de los nombres de las variables (densidad 1 y 2), es meramente ilustrativo, ya que son dos
+#funciones que hacen una distribución de densidsad de probabilidad
+#De manera general se puede notar que al monento de graficar la función de densidad teorica
+# proporciona un buen ajuste de los datos simulados, por lo cual vemos que el método sellecionado
+#funciono de una manera correcta ante la distribución de los datos.
+
+
+########EJERCICIO 4 #####
+nsim<-1000
+mnormal<-vector()
+for(i in 1:nsim)
+{
+  y<-rcauchy(1) #g(y)instrumental
+  pseud2<-runif(1)
+  if (pseud2<= ((1+y^2)/(2))* exp(-(y^2/2)+0.5)){ mnormal[i]<-y } #para guardar el valor  si se cumple la condición.
+  
+  else{ mnormal[i]=0
+  
+    }
+}
+
+mnormaldef<-mnormal[mnormal!=0]
+tasanormal<-length(mnormaldef)/length(mnormal)
+print('tasanormal')
+print(tasanormal) #[1] 0.661
+print('numero medio de iteraciones')
+print(1/tasanormal) # [1] 1.512859, el cual es el resultado que pedía el ejercicio
+hist(mnormaldef, freq = FALSE, main= "Histograma")
+curve(dnorm(x,0,1), add=T, col="blue", lwd=3)
+# Una vez considerando la instrumental y haciendo los cálculos necesarios a través del meétodo de aceptacion y rechazo
+# podemos notar que proporciona una buena simulacioón, ya que los datos tienden a adecuarse a la 
+#distribución estudiada, así como también el factor "M" al momento de hacer la condición para U, esta se cumple. 
