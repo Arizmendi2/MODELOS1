@@ -1,0 +1,23 @@
+#ejercicio para la gamma
+lambda<- 4
+nsim<- 10^5 #numero de simulaciones
+set.seed(1)
+U1 <- runif(nsim)
+U2 <- runif(nsim)
+U3 <- runif(nsim)
+X1<- -log(U1)/lambda # -log(1-u)/lambda ... es la formula que sacamos en la libreta
+X2<- -log(U2)/lambda 
+X3<- -log(U3)/lambda 
+hist(X1+X2+X3, breaks = 100, freq = FALSE, xlim = c(0,5), ylim = c(0,2))
+curve(dgamma(x,3,4), lwd=2, add= TRUE, col= "red")
+
+#ejercicio de Método Box Muller
+nsim<- 10^5 #numero de simulaciones
+set.seed(1)
+U1 <- runif(nsim)
+U2 <- runif(nsim)
+X<- (sqrt(-2*log(U1)))*cos(2*pi*U2) 
+Y<- (sqrt(-2*log(U1)))*sin(2*pi*U2)
+
+hist(Y, breaks = 100, freq = FALSE, xlim = c(-5,5), ylim = c(0,1))
+curve(dnorm(x,0,1), lwd=2, add= TRUE, col= "red")
