@@ -1,0 +1,27 @@
+####<PROCESO POISSON HOMOGENEO
+procepoissonH<- function(T ,lamda)
+{
+  S<- vector()
+  t<- 0 ; I<-0
+  repeat
+  {
+    u1<-runif(1); t<-t-(1/lambda)*log(u1)
+    if(t>T) break else {I<- I+1; S[I]<-t}
+  }
+return(S)
+  }
+S<-procepoissonH(3,2) #lambda=3 y t=2
+n<- length(S)
+counts <- 1:n 
+counts
+S
+plot(S, counts, pch=16, ylim = c(0,n))
+points(S, c(0, counts[-n]))
+segments(
+  x0= c(0, S[-n]),
+  y0= c(0, counts[-n]),
+  x1= S,
+  y1= c(0, counts[-n])
+#en el ejey son los tiempo de ocurrencia y el y son los conteos
+ )
+                       
