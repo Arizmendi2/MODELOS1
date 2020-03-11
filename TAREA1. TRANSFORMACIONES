@@ -1,0 +1,34 @@
+##TAREA
+
+##1.-La suma del cuadrado de n Normales es una chi cuadrada con n g.l.
+y<-vector()
+for (j in 1:10000) {
+  u<-runif(2)
+  x[j]<-sqrt(-2*log(u[1]))*cos(2*pi*u[2])
+  y[j]<-sqrt(-2*log(u[1]))*sin(2*pi*u[2])
+}
+par(mfrow=c(1,3))
+hist(x,freq = 100, col = "yellow")  
+hist(y, freq = 100, col = "blue")
+hist(x+y, freq = 100, col = "orange")
+#Generamos dos nomrales con el metodo de box muller veamos que si las elevamos al cuadrado y las sumamos 
+#obtendremos una nueva V.A. con distribucion chi cuadrada.
+chi<-vector()
+chi<-x^2+y^2
+par(mfrow=c(1:2))
+hist(chi,freq = F,col = "blue", main = "chi generada por normales")
+curve(dchisq(x,2), add = T,col="green")
+hist(rchisq(1000,2),freq = F,col = "brown",main = "chi teorica")
+
+##si z se dist norm estandar y h se dist chi cuadrada con k g.l. entonces, z/sqrt(u/k) se dist. t con k g.l.
+z<-rnorm(1000,0,1)
+w<-vector()
+w<-z/sqrt(chi/2)
+hist(w, freq = F, breaks =100,col = "red")
+curve(dt(x,2),add = T,col="yellow")
+
+##si x se dist F encontces g=(mx/n)/(1+mx/n) se dist beta con parametros a=m/2 y b=n/2
+f<-rf(1000,7,3)
+ga<-((7*f)/3)/(1+(7*f)/3)
+hist(ga, freq = F, col = "pink")
+curve(dbeta(x,3.5,1.5),add = T)
