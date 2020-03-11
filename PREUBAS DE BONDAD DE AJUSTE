@@ -1,0 +1,37 @@
+#PRUEBAS DE BONDAD DE AJUSTE
+#EJEMPLO DEL DADO, CON CHI-CUADRADA
+x<- c(43,49,56,45,66,41)
+y<- c(1/6, 1/6, 1/6, 1/6, 1/6, 1/6)
+chi<-chisq.test(x,p=y)
+#Ho= Datos se distribuyen uniforme discreta(1,6), H1=NO SE DEISTRIBUYEN. BUSCAMOS P-VALUE MAYOR A .05 PARA ACEPTAR H0
+chi
+#Chi-squared test for given probabilities
+#data:  x
+#X-squared = 8.96, df = 5, p-value = 0.1107
+#ENTONCES ACEPTAMOS HO Y DECIMOS QUE SE DISTRIBUYE UNIFORME DISCRETA AL 95% DE CONDIANZA 
+
+#EJEMPLO GENERADOR CUNGRENCIAL, CON KOLMOGOROV
+datos<- c(.3902, .508, .9787, .888, .1024, .6723, .313605, .7254, .9409, .05277)
+y<- punif(0,1)
+ks.test(datos, y)
+#Two-sample Kolmogorov-Smirnov test
+#data:  datos and y
+#D = 1, p-value = 0.1818
+#alternative hypothesis: two-sided
+#entonces con un 95% de confianza los datos si se distribuyen con un uniforme (0,1)
+
+#este caso pero con la exponencial por transformada inversa
+lambda<- 2
+nsim<- 10^5 #numero de simulaciones
+set.seed(1)
+U <- runif(nsim)
+X<- -log(U)/lambda # -log(1-u)/lambda ... es la formula que sacamos en la libreta
+X
+hist(X, breaks = 100, freq = FALSE, xlim = c(0,5), ylim = c(0,2.5))
+curve(dexp(x,lambda), lwd=2, add= TRUE, col= "red")
+#si ahora hacemos la prueba
+ks.test(X,pexp(lambda) )
+#Two-sample Kolmogorov-Smirnov test
+#data:  X and pexp(lambda)
+#D = 0.82058, p-value = 0.5111
+#alternative hypothesis: two-sided
