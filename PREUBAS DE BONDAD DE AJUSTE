@@ -35,3 +35,52 @@ ks.test(X,pexp(lambda) )
 #data:  X and pexp(lambda)
 #D = 0.82058, p-value = 0.5111
 #alternative hypothesis: two-sided
+
+
+install.packages("goftest")
+library(goftest)
+datos<- c(.3902, .508, .9787, .888, .1024, .6723, .313605, .7254, .9409, .05277)
+y<- punif(0,1)
+#anderson mas peso a las colas
+#mas estrictas
+#PREUBA DE CRAMMER
+cvm.test(datos,"punif",0,1)
+#data:  datos
+#omega2 = 0.068405, p-value = 0.7727
+#bajo anderson Darling
+ad.test(datos,"punif",0,1)
+#data:  datos
+#An = 0.51392, p-value = 0.7284
+#Prueba de shapiro Wilk sirve para datos menores a 50
+volumen <-c(8.39,12.14, 11.80,12.04,7.34,12.62,11.51,12.47,
+            11.08,14.32,11.33,11.56,12.79,11.72,12.84,11.73,
+            12.14,11.88,11.95,10.84,11.79,13.21,12.56,12.55,12.80)
+install.packages("car")
+require("car")
+library(car)
+summary(volumen)
+par(mfrow=c(1,3))
+mcw
+hist(volumen,xlab = "Volumen de llenado",ylab ="Frecuencia", las=1,main="", col = "gray")
+plot(density(volumen),xlab = "Volumen de llenado",ylab ="Frecuencia", las=1,main="")
+qqPlot(volumen,xlab = "Cuantiles teoricos",ylab ="Cuantiles muestrales", las=1,main="")
+####################################
+install.packages("MASS")
+require(MASS)
+library("MASS")
+Volumen_norm=fitdistr(volumen,"normal")
+Volumen_norm
+###prueba K-S
+KSnorm=ks.test(volumen,"pnorm",mean=Volumen_norm$estimate[1],sd=Volumen_norm$estimate[2])
+KSnorm
+#D = 0.21198, p-value = 0.2112
+#####Prueba AD
+ADnorm=ad.test(volumen,"pnorm",mean=Volumen_norm$estimate[1],sd=Volumen_norm$estimate[2])
+ADnorm
+#An = 1.6222, p-value = 0.1501
+#### prueba shapiro
+Shnorm=shapiro.test(volumen)
+Shnorm
+#W = 0.81611, p-value = 0.0004272
+
+#cHECAR LO DE LA PAQUETERIA FITDISTR
