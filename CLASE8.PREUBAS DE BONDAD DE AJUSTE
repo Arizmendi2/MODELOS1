@@ -64,6 +64,7 @@ mcw
 hist(volumen,xlab = "Volumen de llenado",ylab ="Frecuencia", las=1,main="", col = "gray")
 plot(density(volumen),xlab = "Volumen de llenado",ylab ="Frecuencia", las=1,main="")
 qqPlot(volumen,xlab = "Cuantiles teoricos",ylab ="Cuantiles muestrales", las=1,main="")
+#por la graficas obtenidas, se nota que no siguen una normal.
 ####################################
 install.packages("MASS")
 require(MASS)
@@ -83,4 +84,3 @@ Shnorm=shapiro.test(volumen)
 Shnorm
 #W = 0.81611, p-value = 0.0004272
 
-#cHECAR LO DE LA PAQUETERIA FITDISTR
