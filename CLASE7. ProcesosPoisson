@@ -24,4 +24,38 @@ segments(
   y1= c(0, counts[-n])
 #en el ejey son los tiempo de ocurrencia y el y son los conteos
  )
-                       
+  
+  
+  # simulacion proceso poisson homogeneo
+poisson_h <- function(lambda,Tmax){
+  u <- runif(1)
+  t <- c(-log(u)/lambda)
+  T <- c(t)
+  i <- 1
+  while( t < Tmax){
+    u <- runif(1)
+    t <- t -log(u)/lambda
+    T <- c(T,t)
+    i <- i+1
+  }
+  T[i] <- Tmax
+  return(T)
+}
+# simulacion proceso poisson no-homogeneo version 1
+poisson_nh_v1 <- function(l,Tmax){
+  T <- poisson_h(l,Tmax)
+  n <- length(T)
+  I <- as.integer(double(n))
+  p <- lnh(T[1],4*pi)/l
+  u <- runif(1)
+  if(u<p) I[1] <- 1
+  else I[1] <- 0
+  for( j in 2:n){
+    p <- lnh(T[j],4*pi)/l
+    u <- runif(1)
+    if(u<p) I[j] <- I[j-1]+1
+    else I[j] <- I[j-1]
+  }
+  R <- rbind(T,I)
+  return(R)
+}
