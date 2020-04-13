@@ -65,6 +65,21 @@ hist(volumen,xlab = "Volumen de llenado",ylab ="Frecuencia", las=1,main="", col 
 plot(density(volumen),xlab = "Volumen de llenado",ylab ="Frecuencia", las=1,main="")
 qqPlot(volumen,xlab = "Cuantiles teoricos",ylab ="Cuantiles muestrales", las=1,main="")
 #por la graficas obtenidas, se nota que no siguen una normal.
+########ESTE EL CODIGO QUE ENVIO LA MAESTRA########
+par(mfrow=c(1,2))
+hist(volumen, xlab = "Volumen de llenado", 
+     ylab = "Frecuencia", las=1, main = "", col = "gray")
+plot(density(volumen), xlab = "Volumen de llenado", 
+     ylab = "Densidad", las=1, main = "")
+###Comparación gráfica de la función de distribución teórica de una normal
+### y la distribuciòn empírica de los datos
+par(mfrow=c(1,1))
+xen <- seq(min(volumen), max(volumen), by=0.0001)
+plot(xen, pnorm(xen, mean=par$estimate[1], sd=par$estimate[2]),
+     type="l", col="red", xlab="Volumen de llenado",
+     ylab="pnorm(volumen, mean, sd)")
+plot(ecdf(volumen), add=TRUE)
+
 ####################################
 install.packages("MASS")
 require(MASS)
@@ -84,3 +99,17 @@ Shnorm=shapiro.test(volumen)
 Shnorm
 #W = 0.81611, p-value = 0.0004272
 
+
+
+####Ejemplo Poisson
+usuarios<-c(50,42,60,39,44,54,48,44,43,50,66,62,43,50,45,43,47,46,52,55)
+hist(usuarios, xlab = "Usuarios", ylab = "Frecuencia", 
+     las=1, main = "", col = "gray")
+require(vcd)
+gf<-goodfit(usuarios, type = "poisson", method = "MinChisq")
+gf$par
+summary(gf)
+xempp <- seq(min(usuarios), max(usuarios), by=0.0001)
+plot(xempp, ppois(xempp, lambda=49.63808), type="l",
+     col="red", xlab="Número de usuarios",ylab="ppois(usuarios, lambda)")
+plot(ecdf(usuarios), add=TRUE)
