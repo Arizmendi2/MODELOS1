@@ -1,0 +1,11 @@
+#ajuste de distribuciones continua
+install.packages("rriskDistributions")
+library(rriskDistributions)
+ x<- rnorm(5000, mean= 10, sd=5)
+aj<-fit.cont(x) 
+aj
+rriskFistdist.cont(x, "norm")$estimate
+rriskFistdist.cont(x, "t")
+par<-rriskFistdist.cont(x,"norm")
+
+######DE AQUI SALE LA IMAGEN DE LAS DISTRIBUCUINES QUE YO LE VOY CAMBIANDO, LA IMAGEN ESTA EN MI CORREO EL 18 DE MARZO, YO ME LO ENVIE
