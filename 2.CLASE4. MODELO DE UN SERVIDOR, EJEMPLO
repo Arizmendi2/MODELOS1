@@ -1,0 +1,127 @@
+#Ejemplo 2: Modelo de colas con un servidor
+install.packages("knitr")
+library(knitr)
+
+set.seed(12345678)
+lambda <- 3 # velocidad de llegada de los clientes
+mu <- 4 # tiempo de atencion
+t <- 0 #es el tiempo de la simulación
+ocupado <- FALSE
+NLL <- 0 #el número de clientes en la cola
+llegada <- rexp(1, lambda / 60) #asi vamos a definir el tiempo de llegada
+tLL <- t + llegada # es la hora de la próxima llegada
+tS <- 9999 #es la hora de la próxima salida
+tsim <- 480 #duración de la simulación
+
+#Los vectores tm, oc, y cl, almacenan el estado del sistema 
+#cada vez que ocurre una llegada o una salida, es decir, un evento.
+#Son respectivamente: - tm, el tiempo del evento en minutos. 
+#- oc, si el sistema está ocupado o no, True or False.
+#- cl, es el número de clientes en la cola.
+tm <- numeric() 
+oc <- logical()
+cl <- integer()
+
+#data frame donde se almacena la trayectoria de cada cliente en cuatro columnas
+clientes <- data.frame("t_ll"=numeric(),# tiempo de llegada
+                       "t_sa"=numeric(),#tiempo de salida
+                       "t_se"=numeric(),# tiempo de servicio
+                       "d_se"=numeric())#duración del servicio
+
+
+while (t < tsim){
+  tm <- c(tm, t)
+  oc <- c(oc, ocupado)
+  cl <- c(cl, NLL)
+  if (tLL < tS){
+    t <- tLL
+    llegada <- rexp(1, lambda / 60)
+    tLL <- t + llegada
+    cliente <- data.frame("t_ll"=t, "t_sa"=NA, "t_se"=NA, "d_se"=NA)
+    clientes <- rbind(clientes, cliente)
+    if (ocupado == TRUE){
+      NLL <- NLL + 1
+    } else {
+      ocupado <- TRUE
+      servicio <- rexp(1, mu / 60)
+      tS <- t + servicio
+      clientes[nrow(clientes), "t_sa"] = tS
+      clientes[nrow(clientes), "t_se"] = t
+      clientes[nrow(clientes), "d_se"] = servicio
+    }
+    
+  } else {
+    t <- tS
+    if (NLL > 0){
+      NLL <- NLL - 1
+      servicio <- rexp(1, mu / 60)
+      tS <- t + servicio
+      clientes[nrow(clientes) - NLL, "t_sa"] = tS
+      clientes[nrow(clientes) - NLL, "t_se"] = t # la hora que lo empiezan a atender
+      clientes[nrow(clientes) - NLL, "d_se"] = servicio
+    } else {
+      ocupado <- FALSE
+      tS <- 9999    #es infinito ya que se puede decir que no hay tiempo de espera y el cliente puede llegar en todo el tiempo
+    }
+  }
+}
+#Generar la tabla de clientes
+cl_table <- data.frame("n_cli"=integer(), #no de clientes
+                       "d_ocio"=numeric(),  #tiempo de oscio
+                       "d_NLL"=numeric(), #duracion de la cola
+                       "d_serv"=numeric(), #duracion del servico
+                       "d_sis"=numeric()) #duracion del sistema
+
+anterior <- 0
+for (i in 1:nrow(clientes)){
+  cliente <- clientes[i,]
+  if (all(!is.na(cliente))){
+    d_ocio <- max(0, cliente$t_ll - anterior)
+    d_NLL <- cliente$t_se - cliente$t_ll
+    d_serv <- cliente$d_se
+    d_sis <- cliente$t_sa - cliente$t_ll #tiempo de salida-tiempo de llegada
+  }
+  anterior <- cliente$t_sa
+  row <- data.frame("n_cli"=i, "d_ocio"=d_ocio, 
+                    "d_NLL"=d_NLL, "d_serv"=d_serv, "d_sis"=d_sis)
+  cl_table <- rbind(cl_table, row)
+}
+kable(cl_table, digits = 2, caption = "Traza de los clientes")
+
+#Número de Clientes en el sistema
+plot(tm, cl + oc, col="green", type="s", main="Número de Clientes en el sistema",
+     xlab = "tiempo (min)", ylab = "# Clientes")
+
+
+#Número de Clientes en la cola
+plot(tm, cl, col="red", type="s", main="Número de Clientes en la cola",
+     xlab = "tiempo (min)", ylab = "# Clientes")
+
+
+#Número promedio de clientes en el sistema
+prod <- numeric(length(tm) - 1)
+for (i in 1:length(tm)-1){
+  prod[i] <- (tm[i+1] - tm[i]) * (cl[i] + oc[i])
+}
+L <- sum(prod) / tm[length(tm)]
+L 
+
+#Número promedio de clientes en la cola
+
+for (i in 1:length(tm)-1){
+  prod[i] <- (tm[i+1] - tm[i]) * (cl[i])
+}
+Lq <- sum(prod) / tm[length(tm)]
+Lq 
+
+
+#Tiempo de espera promedio en el sistema (desde que yo llego hasta que me voy)
+W <- sum(cl_table$d_sis) / nrow(cl_table)
+W 
+
+#Tiempo de espera promedio en la cola
+Wq <- sum(cl_table$d_NLL) / nrow(cl_table)
+Wq
+#tiempo promedio de servicio
+ws<-W-Wq
+ws
