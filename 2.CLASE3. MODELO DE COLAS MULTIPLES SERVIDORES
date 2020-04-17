@@ -1,0 +1,36 @@
+#Modelos con múltiples servidores
+install.packages("simmer")
+install.packages("simmer.plot")
+library(simmer)
+library(simmer.plot)
+set.seed(12)
+
+lambda <- 12
+mu <- 5
+
+#el operador pipe \%>\% se encarga de concatenar acciones una detrás de otra
+paciente <- trajectory() %>%
+  seize("consulta", amount=1) %>% #captura del recurso/servicio
+  timeout(function() rexp(1, mu)) %>% #tiempo del recurso
+  release("consulta", amount=1) #liberación del recurso
+
+#simulación del entorno
+simul.env <- simmer() %>%
+  add_resource("consulta", capacity=3, queue_size=Inf) %>%  #definir un nuevo recurso
+  #name: nombre del recurso (lo definimos como consulta)
+  #capacity: capacidad del servidor
+  #queue_size: tamaño de la cola
+  add_generator("paciente", paciente, function() rexp(1, lambda)) %>%
+  #nueva fuente de llegadas a una trrayectoria
+  #name_prefix: prefijo de nombre de llegadas generadas (definimos paciente)
+  #trajectory
+  #distribución de la generación de llegadas
+  run(until=2) #hacer ka simulación hasta el tiempo t
+
+#get_mon {simmer} obtener datos sobre llegadas, atributos o recursos
+df.res <- get_mon_arrivals(simul.env) # va a mostrar las llegadas de los pacientes
+df.res
+df.res2 <- get_mon_resources(simul.env) #va a mostar las consultas que se generaron
+df.res2
+#lo que sale en system es el numero de elemento que hay en el sistema
+plot(df.res2, metric="usage", "consulta", items="system", steps=TRUE)
