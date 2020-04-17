@@ -1,0 +1,138 @@
+####Aplicaciones de la simulación
+####Sitema de una cola con un servidor
+### Generación de llegadas
+lambda<- function(x) (5+5*x)*I(x<3)+20*I(x>=3&x<5)+(20-2*(x-5))*I(x>=5&x<=9)
+curve(lambda(x),xlim=c(0,9),ylab='lambda(x)')
+S<-vector()
+l<-c(10,15,20,18,16,14)
+te<-c(1,2,6,7,8,9)
+cierre<-9
+k<-length(te)
+procpois2<-function()
+{
+  t<-0;I<-0;J<-1;M<-0
+  repeat
+  {
+    X<- -(1/l[J])*log(runif(1))
+    if (X+t<=te[J]&J<=k){t=X+t}
+    u2<-runif(1)
+    if (u2<=lambda(t)/l[J]) {I<-I+1; S[I]<-t}
+    if (u2>lambda(t)/l[J]) {M<-M+1}
+    if (X+t>te[J]&J<k){X<-l[J]*(X-te[J]+t)/l[J+1]; t<-te[J];
+        J<-J+1}
+        if(X+t>te[J]&J==k) break
+  }
+  print('tasa de aceptación')
+  print(length(S)/(M+I))
+  print('S')
+  return(S)
+}
+procpois2()
+LL<-procpois2()
+LL[length(LL)+1]<-Inf
+
+### Generación de tiempo de servicio
+tserv<-function(){
+  t<-(-1/20)*log(runif(1))
+  return(t)
+}
+tserv()
+unserv<-function(LL,cierre){
+  #Bucle principal de la aplicación
+  t<-0 #variable tiempo
+  NLL<-0 #Contador de llegadas
+  NS<-0
+  n<-0
+  Y<-vector()
+  Sal<-vector()
+  c<-vector()
+  Tp<-0
+  tLL<-LL[1]
+  tS<-Inf
+  tm<-vector()
+  i<-1
+  j<-1
+  repeat{
+    #Caso 1
+    if((tLL<=tS)&(tLL<=cierre))
+    {
+      t<-tLL
+      NLL<-NLL+1
+    i<-i+1
+    tLL<-LL[i]
+      n<-n+1
+    c[length(c)+1]<-n
+      if (n==1)
+      {
+        Y[j]<-tserv()
+          tS<-t+Y[j]
+    #Cliente
+    j<-j+1
+      }
+    }
+    #Caso 2
+    if((tS<=tLL)&tS<=cierre)
+    {
+      t<-tS
+      NS<-NS+1
+      n<-n-1
+    c[length(c)+1]<-n
+     Sal[NS]<-t
+      tm[NS]<-Sal[NS]-LL[NS]
+    if(n == 0)
+    {
+      tS<-Inf
+    }
+      if(n>0)
+      {
+      Y[j]<-tserv()
+          tS<-t+Y[j]
+      j<-j+1
+      }
+    }
+    #Despùes de la hora de cierre
+    #Caso 3
+    if(min(tLL,tS)>cierre)
+    {
+      if(n>0){
+        t<-tS
+        NS<-NS+1
+        n<-n-1
+    c[length(c)+1]<-n
+        Sal[NS]<-t
+        tm[NS]<-Sal[NS]-LL[NS]
+           if(n>0){
+       Y[j]<-tserv()
+            tS<-t+Y[j]
+      j<-j+1
+    }
+      }
+      #Caso 4
+      if(n==0)
+      {
+        Tp<-max(t-cierre,0)
+        break
+      }
+      }
+  }
+  if(tS==Inf)tS<-t
+  resultados<-list('tiempos en el sistema',tm,'clientes en el sistema',c,
+                   'tiempo medio cliente en el sistema', mean(tm,na.rm=TRUE),
+                   'número medio de clientes en el sistema',mean(c),
+                   'tiempo después cierre',Tp,'tiempos atenciòn',Y,
+                   'ùltima salida',tS)
+  return(resultados)
+}
+unserv(LL,9)
+plot(unserv(LL,9)[[4]],type='l')
+#tioempos despu´ñes de cierre para n jornadas
+tcierre<-function(n)
+{
+  tc<-vector(length = n)
+  for(i in 1:n)
+  {
+    tc[i]<-unserv(LL,9)[[10]]
+  }
+  return(tc)
+}
+  plot(tcierre(10),type='l')
