@@ -1,0 +1,86 @@
+##Ejemplo 1: cuatro cajeros
+set.seed(12345678)
+library(simmer)
+lambda1 <- 2 #tasa media de llegada
+mu <- 1 #tasa media de servicio
+#realización de la trayectoria del cliente
+cliente <- trajectory() %>%
+  seize("cajero", amount=1) %>% #captura del servicio
+  timeout(function() rexp(1, mu)) %>% #tiempo del servicio
+  release("cajero", amount=1) #liberación del servicio
+#simulación de la trayectoria
+env <- simmer() %>%
+  add_resource("cajero", capacity=4, queue_size=Inf) %>%
+  add_generator("cliente", cliente, function() rexp(1, lambda1)) %>% #llegadas
+  run(until=480) # Jornada de 8 horas
+res.llegadas <- get_mon_arrivals(env)#resultados de llegadas
+head(res.llegadas) #muestra los primeros 6 elementos de los resultados de llegadas
+res.recursos <- get_mon_resources(env)#resultados de recursos
+head(res.recursos) #muestra los primeros 6 elementos de los resultados de recursos
+#Réplicas 100
+envs <- lapply(1:100, function(i) {
+  simmer() %>%
+   add_resource("cajero", capacity=4, queue_size=Inf) %>%
+    add_generator("cliente", cliente, function() rexp(1, lambda1)) %>%
+    run(480)
+})
+envs.llegadas <- get_mon_arrivals(envs)#resultados de las simulaciones de llegadas
+tail(envs.llegadas)#muestra los últimos valores de las rèplicas
+envs.recursos <- get_mon_resources(envs)#resultados de las simulaciones de recursos
+tail(envs.recursos) #muestra los últimos valores de las rèplicas
+
+library(dplyr)
+# Número promedio de clientes en el sistema
+n_system <- function(time, system){
+  sum(diff(time) * system[1:(length(time)-1)]) / time[length(time)]
+}
+# Número promedio de clientes en la cola
+n_queue <- function(time, queue){
+  sum(diff(time) * queue[1:(length(time)-1)]) / time[length(time)]
+}
+# Fracción del tiempo que hay n o menos en la cola
+t_queue_le_n <- function(time, queue, n){
+  sum(diff(time) * (queue[1:(length(time)-1)] <= n)) / time[length(time)]
+}
+#Aplicar las funciones anteriores a las réplicas generadas
+envs.n <- envs.recursos %>%
+  group_by(replication) %>%
+  summarise(L = n_system(time, system),
+            Lq = n_queue(time, queue),
+            "t(Lq<5)" = t_queue_le_n(time, queue, 5))
+head(envs.n)
+mean(envs.n$L)#estimaciòn del promedio de clientes en el sistema despuès de 100 réplicas
+L.interval <- quantile(envs.n$L, c(.05, .95)) #intervalo de confianza del 90% para L
+L.interval
+mean(envs.n$Lq)#estimaciòn del promedio de clientes en la cola despuès de 100 réplicas
+Lq.interval <- quantile(envs.n$Lq, c(.05, .95)) #intervalo de confianza del 90% para Lq
+Lq.interval  
+mean(envs.n$`t(Lq<5)`)
+# Tiempo promedio en el sistema
+w <- function(start_time, end_time){
+  mean(end_time - start_time)
+}
+# Tiempo promedio en la cola
+wq <- function(start_time, end_time, activity_time){
+  mean(end_time - start_time - activity_time)
+}
+envs.w <- envs.llegadas %>%
+  filter(finished == TRUE) %>% # Considerar solamente los que han salido del sistema
+  group_by(replication) %>%
+  summarise(W = w(start_time, end_time),
+            Wq = wq(start_time, end_time, activity_time),
+            max_Wq =  max(end_time - start_time - activity_time))
+head(envs.w)
+mean(envs.w$W)
+W.interval <- quantile(envs.w$W, c(.05, .95)) #intervalo de confianza del 90% para W
+W.interval
+mean(envs.w$Wq)#estimaciòn del tiempo promedio en la cola despuès de 100 réplicas
+Wq.interval <- quantile(envs.w$Wq, c(.05, .95)) #intervalo de confianza del 90% para Wq
+Wq.interval  
+##gráficas
+library(simmer.plot)
+#gráfica que muestra la actividad del recurso durante la simulación
+plot(get_mon_resources(envs), metric = "usage","cajero", items = "server")
+#gráfica que muestra la actividad del recurso en la rélica 6
+plot(get_mon_resources(envs[[6]]), metric = "usage", "cajero", 
+     items = "server", steps = FALSE)
