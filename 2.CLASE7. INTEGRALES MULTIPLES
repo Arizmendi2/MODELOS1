@@ -1,0 +1,64 @@
+#Ejemplo 5: 
+h<-function(x,y)exp(-(x+y))
+x.llim<-0
+x.ulim<-1
+y.llim<-0
+y.ulim<-1
+#Cálculo de la integral con la función "integrate"
+integrate(function(y){
+  sapply(y, function(y){
+    integrate(function(x)h(x,y),x.llim,x.ulim)$value
+  })
+},y.llim,y.ulim)
+#Integracion MC 
+nsim<-10^5
+ux<-runif(nsim)#uniformes para x
+uy<-runif(nsim)
+htheta<-mean(h(ux,uy))
+htheta
+ plot(cumsum(h(ux,uy))/1:nsim, type = "l", ylab = "Aproximación",
+     xlab = "Iteraciones") #grafica para ver la convergencia en las simulaciones
+abline(h = (exp(-1)-1)^2, lty = 2,col="red")
+#Ejemplo 6:
+h<-function(x,y)exp(0.5*(-(x^2+(y-1)^2-x*(y-1)/10)))
+x.llim<-2
+x.ulim<-16
+y.llim<-3
+y.ulim<-11
+#Cálculo de la integral con la función "integrate"
+integrate(function(y){
+  sapply(y, function(y){
+    integrate(function(x)h(x,y),x.llim,x.ulim)$value
+  })
+},y.llim,y.ulim)
+#Integracion MC 
+nsim<-10^4
+ux<-runif(nsim)
+uy<-runif(nsim)
+g1<- 2+14*ux #son las trasformadas que se deben sustitur en la función h
+g2<- 3+8*uy
+htheta<-14*8*mean(h(g1,g2))
+htheta
+#Ejemplo 7:
+h<-function(x,y)2*x*exp((1-x^2)*(y^2))
+x.llim<-3
+y.llim<-1
+#Cálculo de la integral con la función "integrate"
+I<-integrate(function(y){
+  sapply(y, function(y){
+    integrate(function(x)h(x,y),x.llim,x.ulim)$value
+  })
+},y.llim,y.ulim)
+I
+#Integracion MC 
+nsim<-10^4
+ux<-runif(nsim)
+uy<-runif(nsim)
+g1<- (-2/(uy-1))-1
+g2<- (-6/(ux-1))-3
+
+htheta1<-mean((-2/((uy-1)^2))*(-6/((ux-1)^2))*h(g2,g1))
+htheta1
+plot(cumsum((-2/((uy-1)^2))*(-6/((ux-1)^2))*h(g2,g1))/1:nsim, type = "l", ylab = "Aproximación",
+     xlab = "Iteraciones")
+abline(h = I$value, lty = 2,col="red")
