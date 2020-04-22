@@ -47,6 +47,16 @@ num_a
 #[49] 0.486832384 0.672556064
 #ya nos dio un resultado mejor y no se va al cero tan directo
 
+#mestrodo congruecial mixto: con el generador Xn=5Xn-1
+#+3  mod 16  con X0=7 haz 19 simualciones
+n<-19  #numero de simulaciones
+num_a<- numeric(n)
+seed<-7
+for (j in 1:n)
+{seed<- ((5*seed)+3)%%(16)
+num_a[j]<-seed/(16)
+}
+num_a
 
 
 #SE quieren generar numeros al azar con la exponcial con la trasformada inversa
