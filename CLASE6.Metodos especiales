@@ -1,4 +1,4 @@
-#ejercicio para la gamma
+#CONVOLUCION. ejercicio para la gamma
 lambda<- 4
 nsim<- 10^5 #numero de simulaciones
 set.seed(1)
@@ -18,6 +18,5 @@ U1 <- runif(nsim)
 U2 <- runif(nsim)
 X<- (sqrt(-2*log(U1)))*cos(2*pi*U2) 
 Y<- (sqrt(-2*log(U1)))*sin(2*pi*U2)
-
-hist(Y, breaks = 100, freq = FALSE, xlim = c(-5,5), ylim = c(0,1))
+hist(X, breaks = 100, freq = FALSE, xlim = c(-5,5), ylim = c(0,1))
 curve(dnorm(x,0,1), lwd=2, add= TRUE, col= "red")
