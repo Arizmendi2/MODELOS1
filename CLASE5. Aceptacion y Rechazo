@@ -1,60 +1,55 @@
 #aceptacion y rechazo
 #ejercicio de la beta de x y y de la uniforme
 nsim<-1000
-  mbeta<-vector()
-  for(i in 1:nsim)
-    {
-    y<-runif(1)
-    pseud2<-runif(1)
-    if (pseud2<= y^2) mbeta[i]<-y
-    else mbeta[i]=0
-  }
-  mbetadef<-mbeta[mbeta!=0]
-  tasacepbeta<-length(mbetadef)/length(mbeta)
-  print('tasacebeta')
-  print(tasacepbeta)
-  print('numero medio de iteraciones')
-  print(1/tasacepbeta)
-  
-  hist(mbetadef, freq = FALSE, main= "Histograma")
-  curve(dbeta(x,3,1), add=T, col="blue")
-  
-  
+mbeta<-vector()
+for(i in 1:nsim)
+{
+  y<-runif(1)
+  pseud2<-runif(1)
+  if (pseud2<= y^2) 
+    mbeta[i]<-y
+  else mbeta[i]=0
+}
+mbetadef<-mbeta[mbeta!=0]
+tasacepbeta<-length(mbetadef)/length(mbeta)
+print('tasacebeta')
+print(tasacepbeta)
+print('numero medio de iteraciones')
+print(1/tasacepbeta)
+hist(mbetadef, freq = FALSE, main= "Histograma")
+curve(dbeta(x,3,1), add=T, col="blue")
+
 ###el mismo ejecicio pero con constaantes 
-  nsim<-1000
-  mbeta<-vector()
-  for(i in 1:nsim)
-  {
-    y<-runif(1) #g(y)instrumental
-    pseud2<-runif(1)
-    if (pseud2<= (70/17)*(y^1.7)*((1-y)^5.3)) mbeta[i]<-y #para guardar el valor  si se cumple la 
-    condicion
-    else mbeta[i]=0
-  }
-  mbetadef<-mbeta[mbeta!=0]
-  tasacepbeta<-length(mbetadef)/length(mbeta)
-  print('tasacebeta')
-  print(tasacepbeta)
-  print('numero medio de iteraciones')
-  print(1/tasacepbeta)
-  
-  hist(mbetadef, freq = FALSE, main= "Histograma")
-  curve(dbeta(x,2.7,6.3), add=T, col="blue")
+nsim<-1000
+mbeta<-vector() #aquí se guardan los valores del for
+for(i in 1:nsim){
+  y<-runif(1)    #g(y) instrum aleat
+  U<-runif(1)  #generar los valores de la unifome para comparar
+  if (U<=48.44634359*y^1.7*(1-y)^5.3) mbeta[i]<-y #para guardad el valorsi se cumple X=Y
+  else mbeta[i]=0  #los guarda como un 0 osea no chocan las curvas
+}
+mbetadef<-mbeta[mbeta!=0]#guarda los que son dif de ceros en ese vect
+tasacepbeta<-length(mbetadef)/length(mbeta)#dice el % de datos que SÍ SE AJUSTARON
+print('tasacepbeta')
+print(tasacepbeta)
+print('número medio de interaciones')
+print(1/tasacepbeta)
+hist(mbetadef,freq=FALSE,main="Histograma")
+curve(dbeta(x,2.7,6.3),add=T, col="blue")
+
 
 #el mismo metodo para variables discretas
-  nsim<-1000
-  x<- vector()
-  c<- 0.4/0.25
-  
-  for(i in 1:nsim){
-    y<-floor(4*runif(1))+1
-    p_j<-c(0.2, 0.15, 0.25,0.4)
-    q_j<-.25
-    if(runif(1) < p_j[y] / (c*q_j)){
-      x[i]<-y
-    }
+nsim<-1000
+x<- vector()
+c<- 0.4/0.25 # esta es la M
+for(i in 1:nsim){
+  y<-floor(4*runif(1))+1
+  p_j<-c(0.2, 0.15, 0.25,0.4) #ES LA f(x)
+  q_j<-.25 #es la instrimental
+  if(runif(1) < p_j[y] / (c*q_j)){
+    x[i]<-y
+  }
   else x[i]<- 0
-    }
- 
-  b<-x[x!=0]
-  hist(b, freq = FALSE, main= "Histograma Discreta")
+}
+b<-x[x!=0]
+hist(b, freq = FALSE, main= "Histograma Discreta")
