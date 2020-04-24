@@ -4,14 +4,12 @@ set.seed(1)
 lambda<- log(1-.7)
 X<- vector()
 U <- runif(nsim)
-for(i in 1:nsim)
-{
-  X<- log(U[i])/lambda
+for(i in 1:nsim){
+  X[i]<- log(1-U[i])/lambda
 }
-
 X
-hist(X, freq = FALSE, xlim = c(0,3), ylim = c(0,2.5))
-
+hist(X, freq = FALSE, xlim = c(0,10), ylim = c(0,1))
+curve(dgeom(x,prob = .7), lwd=2, add= TRUE, col= "red")
 #DISTRIBUCIÓN DE BERNULLI POR TRASFORMADA INVERSA
 nsim<- 1000 #numero de simulaciones
 set.seed(1)
@@ -20,28 +18,52 @@ U <- runif(nsim)
 for(i in 1:nsim)
 {
   if(U[i] <= .7){
-    X[i]<- 0
+  X[i]<- 0
   }else{
     X[i]<- 1
   }
 }
-
 X
 hist(X, freq = FALSE, xlim = c(0,3), ylim = c(0,2.5))
+
 
 ##### UNIFORME DISCRETA
 nsim<- 1000 #numero de simulaciones
 set.seed(1)
 X<- vector()
-U <- runifD(nsim)
+U <- runif(nsim)+1
 for(i in 1:nsim)
 {
-  if(U[i] >= 1 && U[i] <=20 ){
-    X[i]<- 1/20
+  if(U[i] >= 0 && U[i] <=1/20 ){
+    X[i]<- (20*U[i])+1
   }else{
     X[i]<- 0
   }
 }
-
 X
 hist(X, freq = FALSE, xlim = c(0,3), ylim = c(0,2.5))
+#  De otra forma
+x=vector()
+
+for (i in 1:20) {
+  x[i]=i
+}
+probg=vector()
+for (i in 1:20) {
+  probg[i]=1/20
+}
+
+FxG <- function(x,probg,nsim=1000){X = numeric(nsim)
+U=runif(nsim)
+for (j in 1:nsim) {i=1
+Fx=probg[i]
+while(Fx<U[j]){
+  i=i+1
+  Fx=Fx+probg[i]
+}
+X[j]=x[i]
+}
+return(X)}
+
+X=FxG(x,probg)
+hist(X,freq=F,xlim = c(1,21),breaks = 22)
