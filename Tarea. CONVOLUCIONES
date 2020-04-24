@@ -1,0 +1,38 @@
+nsim=1000
+X=vector()
+U1=runif(nsim)
+U2=runif(nsim)
+U3=runif(nsim)
+U4=runif(nsim)
+U5=runif(nsim)
+U6=runif(nsim)
+x1=sqrt(-2*log(U1))*cos(2*pi*U2)
+x2=sqrt(-2*log(U1))*sin(2*pi*U2)
+x3=sqrt(-2*log(U3))*cos(2*pi*U4)
+x4=sqrt(-2*log(U3))*sin(2*pi*U4)
+x5=sqrt(-2*log(U5))*cos(2*pi*U6)
+x6=sqrt(-2*log(U6))*sin(2*pi*U6)
+##chicuadrada  La suma del cuadrado de n Normales es una chi cuadrada 
+#con n g.l.
+chi_2gl=x1^2+x2^2
+hist(chi_2gl,breaks = 100,freq = F,xlim = c(-5,5),ylim = c(0,1))
+curve(dchisq(x,2),add=T,col="red")
+## T de Student
+##si z se dist norm estandar y h se dist chi cuadrada con k g.l. 
+#entonces, z/sqrt(u/k) se dist. t con k g.l.
+chi_3gl=x1^2+x2^2+x3^2
+T_student=x4/(((chi_3gl)/3)^(.5))
+hist(T_student,breaks = 100,freq = F,xlim = c(-5,5),ylim = c(0,1))
+curve(dt(x,3),add=T,col="red")
+#F_ Fisher
+#si x se dist F encontces g=(mx/n)/(1+mx/n) 
+#se dist beta con parametros a=m/2 y b=n/2
+chi_2gl_2=x1^2+x2^2
+chi_4gl_2=x3^2+x4^2+x5^2+x6^2
+hist(chi_2gl_2,breaks = 100,freq = F,xlim = c(-5,5),ylim = c(0,1))
+hist(chi_3gl,breaks = 100,freq = F,xlim = c(-5,5),ylim = c(0,1))
+curve(dchisq(x,4),add=T,col="red")
+
+F_Fisher=((chi_2gl_2/2)/(chi_4gl_2/4))
+hist(F_Fisher,breaks=1000,freq = F)
+curve(df(x,2,4),add=T,col="red")
