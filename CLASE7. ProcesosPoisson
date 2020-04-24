@@ -1,16 +1,16 @@
 ####<PROCESO POISSON HOMOGENEO
-procepoissonH<- function(T ,lamda)
+procepoissonH<- function(T ,lambda)
 {
-  S<- vector()
-  t<- 0 ; I<-0
-  repeat
-  {
-    u1<-runif(1); t<-t-(1/lambda)*log(u1)
-    if(t>T) break else {I<- I+1; S[I]<-t}
-  }
-return(S)
-  }
-S<-procepoissonH(3,2) #lambda=3 y t=2
+   S<- vector()
+   t<- 0 ; I<-0
+   repeat
+   {
+     u1<-runif(1); t<-t-(1/lambda)*log(u1)
+     if(t>T) break else {I<- I+1; S[I]<-t}
+   }
+   return(S)
+ }
+S<-procepoissonH(10,2) #lambda=3 y t=2
 n<- length(S)
 counts <- 1:n 
 counts
@@ -22,11 +22,9 @@ segments(
   y0= c(0, counts[-n]),
   x1= S,
   y1= c(0, counts[-n])
-#en el ejey son los tiempo de ocurrencia y el y son los conteos
- )
-  
-  
-  # simulacion proceso poisson homogeneo
+  #en el ejex son los tiempo de ocurrencia y el y son los conteos
+)
+# simulacion proceso poisson homogeneo
 poisson_h <- function(lambda,Tmax){
   u <- runif(1)
   t <- c(-log(u)/lambda)
@@ -37,10 +35,10 @@ poisson_h <- function(lambda,Tmax){
     t <- t -log(u)/lambda
     T <- c(T,t)
     i <- i+1
-  }
-  T[i] <- Tmax
-  return(T)
-}
+    }
+    T[i] <- Tmax
+    return(T)
+ }
 # simulacion proceso poisson no-homogeneo version 1
 poisson_nh_v1 <- function(l,Tmax){
   T <- poisson_h(l,Tmax)
@@ -59,3 +57,29 @@ poisson_nh_v1 <- function(l,Tmax){
   R <- rbind(T,I)
   return(R)
 }
+#ejercicio
+install.packages("laticee")
+library(lattice)
+lamda<-function(x){
+  2*x*I(x<1)+2*I(x>=1 & x<2)+(4-x)*I(x>=2 & x<=4)
+}
+curve(lamda(x),xlim=c(0,9),ylab = 'lamda(x)',col='red')
+#algoritmo
+S<-vector()
+u1<-vector()
+u2<-vector()
+procpois<-function(Ti){
+  t<-0;I<-0
+  for(i in 1:999){
+    u1<-runif(1); t<-t-(1/2)*log(u1)
+    if(t>Ti){print(i);break}
+    if(t<=Ti) u2[i]<-runif(1)
+    if(u2[i]<=(lamda(t)/2)) {I<- I+1; S[I]<-t}
+  }
+  return(S)
+}
+S<-procpois(9)
+n<-length(S)
+counts<-1:n
+plot(S,counts,ylim=c(0,n))
+lines(S,counts)
