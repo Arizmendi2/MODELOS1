@@ -1,0 +1,47 @@
+#Método de composición
+set.seed(200)
+x=vector()
+sim=10^5
+u1=runif(sim)
+u2=runif(sim)
+p=5/6
+for (i in 1:sim) {
+  if (u1[i]<p){
+    x[i]= 2*u2[i]
+  }
+  else{
+    x[i]=1+((2*u2[i]-1)^(1/5))
+    
+  }
+ 
+}
+
+x= replace(x, is.na(x),0)
+
+densidad_función=function(x){5/12*(1+(x-1)^4)}
+hist(x,freq = F, main = "histograma de f(x)")
+curve(densidad_función,add = T,col="blue")
+
+#Método de composición
+set.seed(200)
+X=vector()
+sim=10^5
+u3=runif(sim)
+u4=runif(sim)
+p2=0.5
+for (i in 1:sim) {
+  if (u3[i]<p2){
+    X[i]= .5*u4[i]^(.5)
+  }
+  else{
+    X[i]=1-.5*(1-u4[i])^(.5)
+    
+  }
+  
+}
+
+#x= replace(x, is.na(x),0)
+
+densidad_función=function(x){(4*x)*(0<x&x<.5)+(4*(1-x))*(0.5<=x&x<1)}
+hist(X,freq = F, main = "histograma de f(x)")
+curve(densidad_función,add = T,col="blue")
