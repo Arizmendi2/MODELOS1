@@ -1,0 +1,51 @@
+#Ejemplos del algoritmo Metropolis Hasting##
+#Ejemplo 1: función objetivo N(10,2) 
+
+n<-10000  # longitud de la cadena
+x <- numeric(n)
+x[1]=0 # valor inicial
+for (i in 2:n)
+{
+  y = rnorm(1,x[i-1],0.5)#se define la instrumental
+  u = runif(1)
+  alpha = min(1,(dnorm(y,10,2)*dnorm(x[i-1],y,1))/(dnorm(x[i-1],10,2)*
+                                                     dnorm(y,x[i-1],1)))
+  if(u<=alpha) x[i]=y #se hacen las restricciones
+  else x[i]=x[i-1]
+}
+plot(x,type="l")
+hist(x[1000:10000], freq = F)
+curve(dnorm(x,10,2), add=T,col="green")
+
+
+###Ejemplo 2: Distribución Rayleigh
+#Se tiene que crear la fn de RAYLEIGH o si no se baja una paquteria
+f_obj <- function(x, sigma) {
+  if (any(x < 0)) return (0) # si x < 0, regresa f(x) = 0
+  stopifnot(sigma > 0)       # parar si std. dev <= 0
+  return((x / sigma^2) * exp(-x^2 / (2*sigma^2)))   # fn de densidad rayleigh    
+}
+
+n <- 10000# longitud de la cadena    
+sigma <- 4     
+x <- numeric(n)     
+x[1] <- rchisq(1, df = 1) # valor inicial 
+
+
+for (i in 2:n) {
+  # en cada transición, el punto candidato y
+  # se genera a partir de chi ^ 2 (df = X {t-1})
+  xt <- x[i-1]
+  u <- runif(1)
+  y <- rchisq(1, df = xt) 
+  alpha <- min(1,(f_obj(y, sigma)*dchisq(xt, df = y))/( f_obj(xt, sigma) * dchisq(y, df = xt))) 
+  if (u <=alpha) 
+    x[i] <- y    # si se acepta y, asigne y al siguiente valor de la cadena
+  else {     
+    x[i] <- xt   # else assign old value of x to the next value  
+  }       
+}
+
+plot(x,type="l")
+hist(x[1000:10000], freq = F)
+curve(f_obj(x,sigma), add=T,col="red")
