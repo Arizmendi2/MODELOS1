@@ -1,0 +1,51 @@
+###Ejemplo con distrbución simétrica####
+#es EL DE PASEO ALEATORIO
+###distribución uniforme (-4,4)####ESTA ES LA PROPUESTA, ES SIMETRICA
+#LA FUNCION OBJETIVO ES LA NORMAL (0,1)
+norm_RWMH <-function (m, a,x) {
+  vec <- vector("numeric", m)
+  vec[1] <- x
+  u <- runif(m)
+  for (i in 2:m) {     
+    innov <- runif(1, -a, a)     
+    cand <- x + innov     
+    alpha <- min(1, dnorm(cand)/dnorm(x))        
+    if (u[i] <= alpha){        
+      x <- cand
+    }
+    vec[i] <- x   
+  }   
+  list(vec=vec)
+} 
+# valor inicial
+x = 0
+m = 1000 # longitud de la cadena
+set.seed(17)
+# generar de una uniforme (-4,4)
+v1<-norm_RWMH(m,4,x)
+acf(v1$vec, col = "red", lag.max = 100, ylab = "autocorrelation")  #GENERAMOS LA GRAFICA DE AUTOCORRELACION
+#a una correlacion muy fuerte, no se sugiere independencia y pot o tanto no podrían simular
+plot(v1$vec, col=2,type="l")
+hist(v1$vec[201:1000], freq=F)
+curve(dnorm(x,0,1),add=T,col="blue")
+
+####Muestreo por independencia####
+# función de densidad laplace(2,1) 
+f <- function(x){exp(-abs(x-2))/(2)} 
+m <- 5000  #longitud de la cadena
+X <- numeric(m)
+X[1] <- rnorm(1,mean=2) # valor inicial, yo le doy el valor que quiera
+for(i in 2:m)    
+{     
+  Y <- rnorm(n=1,mean=2) # valor candidato propuesto    
+  # calcular la probabilidad de aceptación     
+  alpha <- min(1,((f(Y) * dnorm(X[i-1],mean=2)) / #se le resto 1, porque el for inición en 2
+                    (f(X[i-1]) * dnorm(Y,mean=2))))     
+  u<- runif(1)
+  if (u <=alpha) X[i] <- Y
+  else X[i]<- X[i-1]   
+}
+Xnew <- X[301:m] #eliminando iteraciones de calentamiento
+hist(Xnew, breaks = 30, prob = T, col = "gray",
+     main ="Minus the burnin sample")
+curve(f(x), ad=T,col="red")
