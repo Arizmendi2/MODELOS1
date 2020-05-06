@@ -1,0 +1,82 @@
+#GIBSS SAMPLER
+#Ejemplo: Normal Bivariada####
+##############################
+#parámetros y constantes iniciales     
+Nsim <- 5000               #longitud de la cadena
+burn <- 1000            #longitud del calentamiento     
+X <- matrix(0, Nsim, 2)    #aquí se guardará la muestra generada
+
+rho <- -0.75            #correlación
+mu1 <- 0     
+mu2 <- 2     
+sigma1 <- 1     
+sigma2 <- 0.5     
+s1 <- sqrt(1-rho^2)*sigma1     
+s2 <- sqrt(1-rho^2)*sigma2
+
+##### generar la cadena #####
+set.seed(17)
+X[1, ] <- c(mu1, mu2)            #inicio
+for (i in 2:Nsim) {         
+  x2 <- X[i-1, 2]        
+  m1 <- mu1 + rho * (x2 - mu2) * sigma1/sigma2         
+  X[i, 1] <- rnorm(1, m1, s1)         
+  x1 <- X[i, 1]         
+  m2 <- mu2 + rho * (x1 - mu1) * sigma2/sigma1         
+  X[i, 2] <- rnorm(1, m2, s2)    
+}
+b <- burn + 1     
+Xf <- X[b:Nsim, ]
+
+# comparar estadísticas muestrales con parámetros     
+colMeans(Xf)     
+#gráfica de la muestra conjunta
+#la gráfica muestra la simetría de la normal bivarada
+#con correlación negativa.
+plot(Xf, main="", cex=.5, xlab=bquote(X[1]),
+     ylab=bquote(X[2]), ylim=range(X[,2]))
+#POR LA GRAFICA SE VE QUE TIENEN UNA CORRELACION NEGATIVA
+
+#############################
+###Ejemplo: binomial beta####
+#############################
+#valores iniciales
+Nsim<-5000
+#Asuma que X|\theta sigue una distribución binomial con n=15 y
+##\theta una distribución beta(a=3 y b=7).
+n<-15
+a<-3
+b<-7
+X=Theta<-array(0,dim=c(Nsim,1)) 
+Theta[1]<-rbeta(1,a,b) 
+X[1]<-rbinom(1,n,Theta[1])
+for (i in 2:Nsim){
+  X[i]<-rbinom(1,n,Theta[i-1])
+  Theta[i]<-rbeta(1,a+X[i],n-X[i]+b)
+}
+par(mfrow=c(1,2))
+hist(X,freq=F,xlab="X|theta", ylab="Densidad marginal condicional")
+hist(Theta,freq=F,xlab=expression(theta), ylab="Densidad marginal")
+curve(dbeta(x,a,b),add=T,col="red")
+
+
+##Ejemplo de las exponenciales###
+#################################
+
+Nsim<- 10000
+theta <- c(2,3,1/2)#theta12,theta13,theta23
+X <- matrix(0,nrow=Nsim,ncol=3)
+X[1,] <- c(0.4,1.2,0.3) ## Valores iniciales (cualesquiera)
+for(i in 2:Nsim){
+  X[i,1] <- rexp(1,1+theta[1]*X[i-1,2]+theta[2]*X[i-1,3])
+  X[i,2] <- rexp(1,1+theta[1]*X[i,1]+theta[3]*X[i-1,3])
+  ## Nótese que aquí ya hemos actualizado el primer
+  ## componente y lo usamos para acelerar convergencia.
+  X[i,3] <- rexp(1,1+theta[2]*X[i,1]+theta[3]*X[i,2])}
+
+
+##gráficas de las muestras condicionadas
+par(mfrow=c(2,2))
+hist(X[,1],freq = F,xlim=c(0,3))
+hist(X[,2],freq = F,xlim=c(0,3))
+hist(X[,3],freq = F,xlim=c(0,3))
