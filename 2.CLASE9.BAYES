@@ -1,0 +1,38 @@
+install.packages("MASS")
+library(MASS)
+#Datos simulados
+set.seed(12)
+n<-20
+xi<-runif(n)
+y<-rnorm(n,-1+2*xi,1)
+x<-cbind(rep(1,n),xi)
+
+f1<-lm(y~xi) #SE HACE LA REGRESION DE Y RESPCTO A LA LOS ELEMNTOS DE X
+summary(f1)
+
+# cálculo de beta estimada
+beta.s<- solve(t(x)%*%x)%*%t(x)%*%y
+
+#calculo de sigma de beta
+var.cov<-function(tau){(tau^-1)*solve(t(x)%*%x)}
+y.s<-x%*%beta.s #SERIA LE PREDICTOR EL Y GORRO
+
+s<-(n-2)/t(y-y.s)%*%(y-y.s)  #ESTE SERIA LA VARINZA ESTIMADA
+tau<-0
+vbeta<-c(0,0)
+for(i in 1:1000){ #ASIGANAMOS LAS DENSIDADES APORTERIORI
+  tau[i]<-(rgamma(1,(n-1)/2,(n-2)/(2*s)))
+  beta<-mvrnorm(1, beta.s,var.cov(tau[i]))#es normal multivariada en r
+  vbeta<-rbind(vbeta,beta)
+}
+
+meanb1<-mean(vbeta[,1])
+meanb1 #seria la BO que es muy oarecido a los de MV
+meanb2<-mean(vbeta[,2])
+meanb2
+meantau<-mean(tau)
+meantau
+par(mfrow=c(2,2))
+hist(vbeta[,1],freq = F)
+hist(vbeta[,2],freq = F)
+hist(tau,freq = F)
