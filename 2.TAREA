@@ -1,3 +1,29 @@
+EJERCICIO1
+Nsim <- 1000              #longitud de la cadena
+burn <- 100            #longitud del calentamiento     
+X <- matrix(0, Nsim, 2)    #aquí se guardará la muestra generada
+mu1 <- 0     
+mu2 <- 2     
+##### generar la cadena #####
+set.seed(10)
+X[1, ] <- c(mu1, mu2)      #inicio
+for (i in 2:Nsim) {         
+  x2 <- X[i-1, 2]        
+  X[i, 1] <- rexp(1,(1+x2^2))         
+  x1 <- X[i, 1]         
+  m2 <- 0
+  s2<-(1/sqrt(2*x1))
+  X[i, 2] <- rnorm(1, m2, s2) 
+}
+b <- burn + 1     
+Xf <- X[b:Nsim, ]
+
+plot(Xf, main="", cex=.5, xlab=bquote(X[1]),
+     ylab=bquote(X[2]), ylim=range(X[,2]))
+par(mfrow=c(1,2))
+hist(X[,1],freq=F,ylab = "Marginal posterior Exponencial", breaks=30)
+hist(X[,2],freq=F,ylab = "Marginal posterior Normal", breaks=50)
+ 
 EJERCICIO2
 Nsim<-1500
 #Asumir que X|\theta sigue una distribución binomial, en la la cual su 
