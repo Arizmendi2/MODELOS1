@@ -1,0 +1,19 @@
+EJERCICIO2
+Nsim<-1500
+#Asumir que X|\theta sigue una distribución binomial, en la la cual su 
+#parámetro n sigue una distribución Poisson con parámetro lambda=6 y
+##\theta una distribución beta(a=2 y b=8).
+n<-rpois(1,6)
+a<-2
+b<-8
+X=Theta<-array(0,dim=c(Nsim,1)) 
+Theta[1]<-rbeta(1,a,b) 
+X[1]<-rbinom(1,n,Theta[1])
+for (i in 2:Nsim){
+  X[i]<-rbinom(1,n,Theta[i-1])
+  Theta[i]<-rbeta(1,a+X[i],n-X[i]+b)
+}
+par(mfrow=c(1,2))
+hist(X,freq=F,xlab="X|theta", ylab="Densidad marginal condicional")
+hist(Theta,freq=F,xlab=expression(theta), ylab="Densidad marginal")
+curve(dbeta(x,a,b),add=T,col="red")
