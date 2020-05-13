@@ -1,0 +1,80 @@
+set.seed(11)
+j=0
+kj=38#se propone ese tamaño de muestra
+#Se generan las variables con distribución N(0,1) normal estandar
+rx=rnorm(kj)
+desvesj=sd(rx)
+#Se sigue el algoritmo para calular el tamaño de la muestra
+#Consideramos un nivel de significacia del 95% =1-a con un error de  .010
+l=.010
+alpha<-qnorm(1-.1/2)
+A=(alpha*desvesj)/sqrt(kj)
+while (A>l) {
+  j=j+1
+  kj= ((alpha*desvesj)/l)^2
+  rx=rnorm(kj)
+  desvesj=sd(rx)
+  A=(alpha*desvesj)/sqrt(kj)
+}
+alpha
+kj
+j
+#Se puede concluir lo siguiente:
+#Se tienen que hacer j=4 simulaciones para encontrar que el tamaño de la
+#muestra es de kj=27255 con una longitud de intervalo l=0.01, es decir el error.
+est<-cumsum(rx)/(j)
+esterr <- sqrt(cumsum((rx)^2))/(j - 1) # Error estandar
+plot(est,type = "l", lwd = 2, xlab = "Número de simulaciones",
+     ylab = "Media y rango de error", ylim = c(-80, 80))
+abline(h = est[j], lty=2)
+lines(est + 2*esterr, lty=3)
+lines(est - 2*esterr, lty=3)
+abline(h = 0)
+hist(est)
+
+
+#Ejemplo 1.1 Binomaial
+p <- 0.5
+set.seed(1)
+nsim <- 10000
+rx <- runif(nsim) <= p
+
+mean(rx)
+
+plot(cumsum(rx)/1:nsim, type="l", lwd=2, xlab="Número de simulaciones",
+     ylab="Proporción muestral", ylim=c(0,1))
+abline(h = mean(rx), lty = 2)
+# valor teórico
+abline(h = p)
+
+#Ejemplo 1.2 Cauchy
+set.seed(1)
+nsim <- 10000
+rx <- rcauchy(nsim)
+plot(cumsum(rx)/1:nsim, type="l", lwd=2,
+     xlab="Número de simulaciones", ylab="Media muestral")
+
+
+#Ejemplo 1.3 Normal
+xsd <- 1
+xmed <- 0
+set.seed(1)
+nsim <- 1000
+rx <- rnorm(nsim, xmed, xsd)
+rx
+#La aproximación por simulación de la media será:
+mean(rx)
+
+#Como medida de la precisión de la aproximación podemos considerar:
+2*sd(rx)/sqrt(nsim)  
+
+#Intervalos
+n <- 1:nsim
+est <- cumsum(rx)/n
+esterr <- sqrt(cumsum((rx-est)^2))/(n - 1) # Error estandar
+plot(est, type = "l", lwd = 2, xlab = "Número de simulaciones",
+     ylab = "Media y rango de error", ylim = c(-1, 1))
+abline(h = est[nsim], lty=2)
+lines(est + 2*esterr, lty=3)
+lines(est - 2*esterr, lty=3)
+abline(h = xmed)
