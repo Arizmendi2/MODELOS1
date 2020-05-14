@@ -1,0 +1,76 @@
+#INTEGRACION POR MONTECARLO
+set.seed(54321)
+I <- function(x) {exp(x)/2}
+
+teor <- integrate(I,0,2)#(exp(b)-exp(a))/(b-a)
+teor<-teor$value
+teor
+
+nsim<-2000
+
+#Solución del ejercicio usando integración montecarlo, AQUI SE ASUME INDEPENDENCIA
+g<-function(x)(exp(2*x)) #YA SE PONE LA MONTECARLO
+x1<-g(runif(nsim))
+
+theta1<-mean(x1)
+theta1
+
+#media de simulaciones hasta nsim, SON LOS PROMEDIOS ACUMULADOS
+estint1 <- cumsum(x1)/(1:nsim)
+
+##usando variables antitéticas
+u <- runif(nsim%/%2)#es el numero de simulaciones, k=2, la mitad es U Y LA OTRA ES 1-U
+#generamos a u y 1-u que se sabe están correlacionadas negativamente
+u<- matrix(c(u,1-u),nrow=2,byrow=TRUE)#se genera la matriz
+fx <- apply(u, 1, g)#ya se mente con la función monete carlo, es 1 porque la aplicacion es por renglones, 
+#si fuera el 2, es porq es por columnas.
+mean(fx) #estimación usando variables antitéticas
+estint2 <- cumsum(fx)/(1:nsim)
+#Gráfico de simulaciones
+plot(estint2, type="l",ylab = "media de simulaciones") 
+lines(estint1,col="red")
+abline(h=teor, lty=2,col="blue" )
+#la negra es las simulaciones con las antiteticas
+#la roja es con las de independencia
+#la linea azul es el valor real de la integral
+#al principo se hace volatil, pero al aumentar el no. de simulaciones se hace constantes, la que
+#converge mas rapido es la negra, que son las de las variables antiteticas
+###comparación de varianzas, esperamos que las varinzas con indep sean mayores a los que no se asume indep
+(var1<-var(x1))
+(var2<-(1/4)*(var(fx[,1])+var(fx[,2])-2*cov(fx[,1],fx[,2])))
+
+#reducción
+(red <- ((var1 - var2) / var1)*100)
+
+
+
+#densidad Rayleigh
+fd<-function(x){(x / sigma^2) * exp(-x^2 / (2*sigma^2))}
+
+nsim<-1000
+
+sigma<-2
+set.seed(54321)
+#Simulación empleando el método de la transformada inversa
+u<-runif(nsim)
+rayleigh <- sigma * sqrt(-2 * log(u))
+
+#Simulación empleando el método de la transformada inversa
+#considerando variables correlacionadas negativamente
+u <- runif(nsim%/%2)
+fx_aprox<-function(x) sigma * sqrt(-2 * log(x))
+
+#u y 1-u
+u<- matrix(c(u,1-u),nrow=2,byrow=TRUE)
+x_ap <- apply(u, 1, fx_aprox)
+
+###comparación de varianzas
+(var1<-var(rayleigh))#asumiendo independencia
+(var2<-(1/4)*(var(x_ap[,1])+var(x_ap[,2])-2*cov(x_ap[,1],x_ap[,2])))#no independencia
+
+#reducción
+(red <- ((var1 - var2) / var1)*100)
+
+#Datos simulados con u y 1-u
+hist(x_ap,freq = F)#las antiteticas
+curve(fd(x),add=T)#la fn continua
