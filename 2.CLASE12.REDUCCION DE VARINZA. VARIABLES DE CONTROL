@@ -1,0 +1,64 @@
+###Método variables de control###
+
+##Ejercicio 1####
+m <- 10000 #num simulaciones
+a <- - ((3-exp(1))/2)/(1/12) #valor de c*
+U <- runif(m)
+T1 <- exp(U)                  #Integración MC  se difinio a X=e a la u
+T2 <- exp(U) + a*(U - 1/2)  #variable control
+
+mean(T1)
+mean(T2)
+(var(T1) - var(T2)) / var(T1)
+
+
+#########################################
+##Ejercicio 2##
+
+a <- 0; b <- 2 # asumir que x~U(0,2)
+teor <- (exp(b)-exp(a))/(b-a) #es el valor esperado del auniforme
+teor#valor teórico
+
+set.seed(54321)
+nsim <- 1000
+u <- runif(nsim, a, b)
+expu <- exp(u)
+mean(expu) #resultado usando simulación MC
+
+plot(u, expu)
+reg <- lm(expu ~ u)$coef #aqui esta la regresion entre las variables de X y la de la variable control
+reg[2] ### estimación de c* usando regresión
+abline(reg, col='blue')
+
+reg[1]+reg[2] #aprox de la integral por el método variables control, aqui 
+#reg(2), seria multiplicado por la media pero la media de la U(0,2) ES 1
+expuc <- expu - reg[2]*(u-1)#otra forma de obtener la aproximación
+mean(expuc)
+
+100*(var(expu)-var(expuc))/var(expu)# % de reducción de varianza
+
+##############################################
+### Ejercicio 3
+g <- function(u)  #la varible control
+  exp(-.5)/(1+u^2)
+
+f <- function(u)
+  exp(-u)/(1+u^2)
+
+set.seed(510)
+u <- runif(10000)
+B <- g(u)
+A <- f(u)
+
+cor(A, B)
+a <- -cov(A,B) / var(B)    #estimación de c*
+a
+
+m <- 100000
+u <- runif(m)
+T1 <- f(u)  #por monte carlo
+T2 <- T1 + a * (g(u) - exp(-.5)*pi/4) #por varibel de control
+
+c(mean(T1), mean(T2))
+c(var(T1), var(T2))
+(var(T1) - var(T2)) / var(T1)
