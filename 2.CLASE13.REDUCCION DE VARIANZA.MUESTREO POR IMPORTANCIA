@@ -1,0 +1,65 @@
+#Ejemplo 1
+set.seed(321)
+x<-rnorm(10^6)
+w<-dcauchy(x)/dnorm(x) #la f(x) es la cauchy y la g(y) es la normal, la cauchy es de colas mas pesadas que la normal 
+plot(cumsum(w*(x>2)*(x<6))/cumsum(w),type="l", ylab = "Aproximación",
+     xlab = "Iteraciones")
+abline(a=pcauchy(6)-pcauchy(2),b=0,col="sienna")
+
+#Ejemplo 2
+#gráficas}
+x<-seq(0,1,0.01)#valores de x que van de 0 a 1  en intervalos de 0.01
+w<-2
+f1<-exp(-x)
+h<-exp(-x)/(1+x^2)
+f2<-exp(-x)/(1-exp(-1))
+f3<-4/((1+x^2)*pi)
+
+plot(x,h,type="l",main="",ylab="",ylim=c(0,3),lwd=w,col=1)
+lines(x,h/h,lty=2,lwd=w,col=2)
+lines(x,f1,lty=3,lwd=w,col=3)
+lines(x,f2,lty=4,lwd=w,col=4)
+lines(x,f3,lty=5,lwd=w,col=5)
+legend("topright",cex=0.8,legend=c("h",0:3),col=1:5,lty=1:5,lwd=w)
+#queremso la linea de color negro
+#empezamos con la simulación
+m<-10000
+theta.hat<-desves<-numeric(4)
+
+#definimos la función a integrar
+h<-function(x){
+  exp(-x-log(1+x^2))*(x>0)*(x<1)
+}
+
+
+#Empezamos con los cálculos para las diferentes distribuciones
+
+
+#Note que todas las distribuciones candidatas a función 
+#de importancia son positivas en el conjunto 0<x<1
+
+x<-runif(m) #usando f0
+hg<-h(x)
+theta.hat[1]<-mean(hg)
+desves[1]<-sd(hg)
+
+x<-rexp(m,1) #usando f1
+hg<-h(x)/exp(-x)
+theta.hat[2]<-mean(hg)
+desves[2]<-sd(hg)
+
+u<-runif(m)#usando f3, método de la transformada inversa
+x<- -log(1-u*(1-exp(-1))) # checar de tarea
+hg<-h(x)/(exp(-x)/(1-exp(-1)))
+theta.hat[3]<-mean(hg)
+desves[3]<-sd(hg)
+
+u<-runif(m)#usando f4, método de la transformada inversa
+x<- tan(pi*u/4) }    #checar de tarea
+hg<-h(x)/(4/((1+x^2)*pi))
+theta.hat[4]<-mean(hg)
+desves[4]<-sd(hg)
+
+rbind(theta.hat,desves) #Note que la función f2 es la que menor varianza presenta
+
+
