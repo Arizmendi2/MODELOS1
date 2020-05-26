@@ -1,0 +1,65 @@
+###########################
+#Ejemplo 1: reducción por condicionamiento
+###########################
+
+##valor real de la integral
+pi/4
+
+#Creamos la muestra de X e Y 
+set.seed(321)
+x<- runif(10^5,-1,1)
+y<- runif(10^5,-1,1)
+plot(x,y)
+munif1<- cbind(x,y)
+
+#seleccionamos los puntos en el
+#interior del círculo
+munif2<-munif1[x^2+y^2<1,]
+points(munif2,col="red")
+
+#estimación de la integral usando 
+#las muestras generadas
+prob.est<-nrow(munif2)/nrow(munif1)
+prob.est
+
+
+#como función del número de puntos
+estpi<-function(n)
+{
+  x<- runif(n,-1,1)
+  y<- runif(n,-1,1)
+  munif1<- cbind(x,y)
+  munif2<-munif1[x^2+y^2<1,]
+  prob.est<-nrow(munif2)/nrow(munif1)
+}
+
+#realizamos 200 estimaciones con n=1000 puntos para cada muestra de x e y
+r<-vector()
+for(i in 1:200)
+{
+  r[i]<-estpi(1000)
+}
+plot(r, type="l")
+abline(h=pi/4, col="red")
+
+###simulación empleando condicionamiento x|y
+muesY<-matrix(nrow=1000,ncol=200)
+for(i in 1:200)
+{
+  muesY[,i]<-sqrt(1-(runif(1000,-1,1)^2))
+}
+prob.est2<-apply(muesY,2,mean)
+
+
+#comparación de procedimientos
+#Gráfico
+plot(r, type="l",lwd=2)
+abline(h=pi/4, col="red",lwd=2)
+lines(prob.est2,col="red",lwd=2)
+
+#valores
+mean(r)
+mean(prob.est2)
+var(r)
+var(prob.est2)
+
