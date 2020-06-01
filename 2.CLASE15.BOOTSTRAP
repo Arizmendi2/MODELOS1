@@ -103,3 +103,56 @@ boot.obj <- boot(dat, statistic = theta.boot, R = 2000)
 print(boot.obj)#da la estimaciond e la muestra original
 print(boot.ci(boot.obj,
               type = c("basic", "norm", "perc")))#ya da todo los intervalos
+             
+#El siguiente algorimo proporciona una función pra calcular un 
+#IC bootstrap estudentizado, el nivel de confianza por default es del
+#95%, el número de réplicas es 500 y el número de réplicas para estimar
+#el error estándar son 100
+# es el algoritmo como tal de la pag. 25
+boot.t.ci <-
+  function(x, B = 500, R = 100, level = .95, statistic){ #X son los numeros de las muestras, la R es para las recplicas del error estandar, y pues el estadistico, ya seria que que nos pidieran
+    #calcular el IC bootstrap estudentizado 
+    x <- as.matrix(x);  n <- nrow(x)
+    stat <- numeric(B); se <- numeric(B)
+    #seria un boot dentro de otro boot
+    boot.se <- function(x, R, f) {
+      #función local para calcular la estimación bootstrap
+      # del error estándar para la estadística f(x)
+      x <- as.matrix(x); m <- nrow(x)
+      th <- replicate(R, expr = {
+        i <- sample(1:m, size = m, replace = TRUE) #se hace la muestra
+        f(x[i, ])
+      })
+      return(sd(th)) #para que me regrese la desviación
+    }
+    
+    for (b in 1:B) {
+      j <- sample(1:n, size = n, replace = TRUE)
+      y <- x[j, ]
+      stat[b] <- statistic(y) #se calcula estadistico de interés
+      se[b] <- boot.se(y, R = R, f = statistic)
+    }
+    stat0 <- statistic(x)
+    t.stats <- (stat - stat0) / se #bth réplica del del estadístico t, ya es la etimacion, que es la diferncia netre las estimaciones dividida entre el error estandar
+    se0 <- sd(stat)
+    alpha <- 1 - level #definir nivel de significancia
+    Qt <- quantile(t.stats, c(alpha/2, 1-alpha/2), type = 1) # se generan los cuantiles
+    names(Qt) <- rev(names(Qt))
+    CI <- rev(stat0 - Qt * se0) # ya sería el intervalo
+  }
+
+
+### Ejemplo 4 (Intervalo de Confianza Bootstrap estudentizado)
+
+library(boot)       #para las funciones boot y boot.ci
+data(patch, package = "bootstrap")
+
+dat <- cbind(patch$y, patch$z)
+
+
+set.seed(123)
+stat <- function(dat) {
+  mean(dat[, 1]) / mean(dat[, 2]) } # el valor teorico pora el perámetro
+ci <- boot.t.ci(dat, statistic = stat, B=2000, R=200)
+print(ci) # nos da el intervalo de ocnfianza a un nivel del 95%
+
