@@ -1,4 +1,4 @@
-#Ejemplo 1:CASO 1
+#Ejemplo 1:CASO 1 
 h1<-function(x){(cos(50*x)+sin(20*x))^2}#definir la función h
 integrate(h1,0,1) 
 #valor de la integral usando integración MC
