@@ -84,3 +84,66 @@ plot(get_mon_resources(envs), metric = "usage","cajero", items = "server")
 #gráfica que muestra la actividad del recurso en la rélica 6
 plot(get_mon_resources(envs[[6]]), metric = "usage", "cajero", 
      items = "server", steps = FALSE)
+
+# Ejemplo: hospital
+library(simmer)
+
+set.seed(42)
+paciente <- trajectory("recorrido del paciente") %>%
+  ## agregar primer actividad
+  seize("enfermera", 1) %>%
+  timeout(function() rnorm(1, 10,1)) %>%
+  release("enfermera", 1) %>%
+  ## agregar la actvidad de consulta
+  seize("doctor", 1) %>%
+  timeout(function() rnorm(1, 20,1)) %>%
+  release("doctor", 1) %>%
+  ## agendar próxima consulta
+  seize("secretaria", 1) %>%
+  timeout(function() rnorm(1, 5,1)) %>%
+  release("secretaria", 1)
+
+#simulación de la trayectoria
+env <- simmer() %>%
+  add_resource("enfermera", 1) %>%# es el numero de servidores
+  add_resource("doctor", 2) %>%#hay dos doctores
+  add_resource("secretaria", 1) %>%
+  add_generator("paciente", paciente, function() rnorm(1, 10, 2))%>%
+  run(until=80)
+
+
+##réplicas
+envs <- lapply(1:100, function(i) {
+  simmer() %>%
+    add_resource("enfermera", 1) %>%
+    add_resource("doctor", 2) %>%
+    add_resource("secretaria", 1) %>%
+    add_generator("paciente", paciente, function() rnorm(1, 10, 2)) %>%
+    run(80)
+})
+
+envs %>% 
+  get_mon_resources() %>%
+  head()
+
+envs %>% 
+  get_mon_arrivals() %>%
+  head()
+
+#gráficas
+library(simmer.plot)
+#obtener los recursos de las réplicas
+resources <- get_mon_resources(envs)
+
+#gráfica de la utilización específica de los recursos
+plot(resources, metric = "utilization")
+
+#gráfica que muestra la actividad de los recursos durante la simulación
+plot(resources, metric = "usage", c("enfermera", "doctor"), items = "server")
+
+#gráfica que muestra la actividad del recurso doctor en la rélica 30
+plot(get_mon_resources(envs[[30]]), metric = "usage", 
+     "doctor", items = "server", steps = TRUE)
+
+#arrivals <- get_mon_arrivals(envs)
+#plot(arrivals, metric = "flow_time")
